@@ -4,7 +4,7 @@ import (
 	"project-art-museum/business/creator/content"
 )
 
-type GetCreatorByName struct {
+type ContentResponse struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Nationality string `json:"nationality"`
@@ -22,8 +22,8 @@ type GetCreatorByName struct {
 	} `json:"artworks"`
 }
 
-func NewGetContentByIDResponse(content content.Content) *GetCreatorByName {
-	var contentResponse GetCreatorByName
+func NewGetContentByIDResponse(content content.Content) *ContentResponse {
+	var contentResponse ContentResponse
 	contentResponse.ID = content.ID
 	contentResponse.Name = content.Name
 	contentResponse.Nationality = content.Nationality
