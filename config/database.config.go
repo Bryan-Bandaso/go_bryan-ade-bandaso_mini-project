@@ -1,39 +1,84 @@
 package config
 
 import (
-	"fmt"
-	"os"
+	"sync"
 
-	"github.com/ydhnwb/golang_heroku/entity"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/labstack/gommon/log"
+	"github.com/spf13/viper"
 )
 
-//SetupDatabaseConnection is creating a new connection to our database
-func SetupDatabaseConnection() *gorm.DB {
-
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbName := os.Getenv("DB_NAME")
-	dbPort := os.Getenv("DB_PORT")
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%s sslmode=require TimeZone=Asia/Shanghai", dbHost, dbUser, dbPass, dbPort, dbName)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("Failed to create a connection to database")
-	}
-
-	db.AutoMigrate(&entity.User{}, &entity.Product{})
-	println("Database connected!")
-	return db
+//AppConfig Application configuration
+type AppConfig struct {
+	App struct {
+		Name string `toml:"name"`
+		Env  string `toml:"env"`
+		Port int    `toml:"port"`
+	} `toml:"app"`
+	Database struct {
+		Driver   string `toml:"driver"`
+		Address  string `toml:"address"`
+		Port     int    `toml:"port"`
+		Username string `toml:"username"`
+		Password string `toml:"password"`
+		Name     string `toml:"name"`
+	} `toml:"database"`
+	Cache struct {
+		Driver   string `toml:"driver"`
+		Address  string `toml:"address"`
+		Port     int    `toml:"port"`
+		Password string `toml:"password"`
+		Dbnumber int    `toml:"dbnumber"`
+	} `toml:"cache"`
 }
 
-//CloseDatabaseConnection method is closing a connection between your app and your db
-func CloseDatabaseConnection(db *gorm.DB) {
-	dbSQL, err := db.DB()
-	if err != nil {
-		panic("Failed to close connection from database")
+var lock = &sync.Mutex{}
+var appConfig *AppConfig
+
+//GetConfig Initiatilize config in singleton way
+func GetConfig() *AppConfig {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if appConfig == nil {
+		appConfig = initConfig()
 	}
-	dbSQL.Close()
+
+	return appConfig
+}
+
+func initConfig() *AppConfig {
+	// var defaultConfig AppConfig
+	// defaultConfig.App.Port = 5001
+	// defaultConfig.App.Name = "poseidon"
+	// defaultConfig.App.Env = "local"
+
+	// defaultConfig.Database.Driver = "sqlite"
+	// defaultConfig.Database.Name = "insanulab-test"
+	// defaultConfig.Database.Address = ""
+	// defaultConfig.Database.Port = 3306
+	// defaultConfig.Database.Username = ""
+	// defaultConfig.Database.Password = ""
+
+	// defaultConfig.Cache.Driver = "redis"
+	// defaultConfig.Cache.Address = "localhost"
+	// defaultConfig.Cache.Port = 6379
+	// defaultConfig.Cache.Password = ""
+
+	viper.SetConfigType("toml")
+	viper.SetConfigName("config")
+	viper.AddConfigPath("./config/")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Info("error to load config file, will use default value ", err)
+		// return &defaultConfig
+	}
+
+	var finalConfig AppConfig
+	err := viper.Unmarshal(&finalConfig)
+	if err != nil {
+		log.Info("failed to extract config, will use default value ")
+		// return &defaultConfig
+	}
+
+	return &finalConfig
 }

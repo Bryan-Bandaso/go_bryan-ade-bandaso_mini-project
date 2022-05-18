@@ -1,7 +1,7 @@
 package spec
 
 type UpsertContentSpec struct {
-	ID          int    `validate:"required"`
+	ID          string `validate:"required"`
 	Name        string `validate:"required"`
 	Nationality string `validate:"required"`
 	Description string `validate:"required"`

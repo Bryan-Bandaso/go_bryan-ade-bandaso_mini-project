@@ -1,17 +1,22 @@
 package response
 
 import (
-	"project-art-museum/business/creator/content"
+	"project-art-museum/business/content"
 )
 
+type CreateNewContentResponse struct {
+	ID string `json:"id"`
+}
+
 type ContentResponse struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Nationality string `json:"nationality"`
 	Description string `json:"description"`
 	Biography   string `json:"biography"`
 	Birth_year  string `json:"birth_year"`
 	Death_year  string `json:"death_year"`
+	Version     int    `json:"version"`
 
 	Artworks struct {
 		ID               int    `json:"id"`
@@ -22,9 +27,14 @@ type ContentResponse struct {
 	} `json:"artworks"`
 }
 
+func NewCreateNewContentResponse(id string) *CreateNewContentResponse {
+	return &CreateNewContentResponse{
+		id,
+	}
+}
+
 func NewGetContentByIDResponse(content content.Content) *ContentResponse {
 	var contentResponse ContentResponse
-	contentResponse.ID = content.ID
 	contentResponse.Name = content.Name
 	contentResponse.Nationality = content.Nationality
 	contentResponse.Description = content.Description

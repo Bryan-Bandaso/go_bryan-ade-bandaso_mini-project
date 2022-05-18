@@ -1,17 +1,18 @@
 package request
 
 import (
-	spec "project-art-museum/business/creator/content/spec"
+	spec "project-art-museum/business/content/spec"
 )
 
 type CreateContentRequest struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Nationality string `json:"nationality"`
 	Description string `json:"description"`
 	Biography   string `json:"biography"`
 	Birth_year  string `json:"birth_year"`
 	Death_year  string `json:"death_year"`
+	Version     int    `json:"version" validate:"required"`
 
 	Artworks struct {
 		ID               int    `json:"id"`
@@ -23,13 +24,13 @@ type CreateContentRequest struct {
 }
 
 func (req *CreateContentRequest) ToSpec() *spec.UpsertContentSpec {
-	return &spec.UpsertContentSpec{
-		ID:          req.ID,
-		Name:        req.Name,
-		Nationality: req.Nationality,
-		Description: req.Description,
-		Biography:   req.Biography,
-		Birth_year:  req.Birth_year,
-		Death_year:  req.Death_year,
-	}
+	var upsertContentSpec spec.UpsertContentSpec
+	upsertContentSpec.Name = req.Name
+	upsertContentSpec.Nationality = req.Nationality
+	upsertContentSpec.Description = req.Description
+	upsertContentSpec.Biography = req.Biography
+	upsertContentSpec.Birth_year = req.Birth_year
+	upsertContentSpec.Death_year = req.Death_year
+
+	return &upsertContentSpec
 }
